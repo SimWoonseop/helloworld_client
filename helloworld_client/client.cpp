@@ -3,6 +3,7 @@
 #include <winsock2.h>
 #include <WS2tcpip.h>
 
+#define BUF_SIZE 1024
 void ErrorHandling( const char* message );
 
 int main()
@@ -14,7 +15,7 @@ int main()
 	int port = 5001;
 
 
-	char message[30];
+	char message[BUF_SIZE];
 	int strLen;
 
 
@@ -40,15 +41,32 @@ int main()
 	{
 		ErrorHandling("connect() error!");
 	}
-
-	strLen = recv(hSocket, message, sizeof(message) - 1, 0);
-	if (strLen == -1)
+	else
 	{
-		ErrorHandling("read() error!");
+		puts("Connetced......");
 	}
 
-	printf("message from server: %s\n", message);
+	while (1)
+	{
+		fputs("Input message(Q to quit) : ", stdout);
+		fgets(message, BUF_SIZE, stdin);
 
+		if (!strcmp(message, "q\n") || !strcmp(message, "Q\n"))
+		{
+			break;
+		}
+
+		send(hSocket, message, strlen(message), 0);
+		strLen = recv(hSocket, message, sizeof(message) - 1, 0);
+		if (strLen == -1)
+		{
+			ErrorHandling("read() error!");
+		}
+		message[strLen] = 0;
+		printf("message from server: %s\n", message);
+	}
+
+	
 	closesocket(hSocket);
 	WSACleanup();
 
